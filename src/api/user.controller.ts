@@ -1,8 +1,9 @@
 import {CommandBus, QueryBus} from "@nestjs/cqrs";
-import {Body, Controller, Post} from "@nestjs/common";
-import {CreateUserCommand} from "../app/command/create-user.command";
-import {CreateUserRequest} from "./dtos";
+import {Body, Controller, Get, Param, Post} from "@nestjs/common";
 import {plainToInstance} from 'class-transformer';
+import {CreateUserCommand} from "@/src/app/command/create-user.command";
+import {CommandResult, CreateUserRequest, GetUserByIdResponse} from "@/src/api/dtos";
+import {GetUserByIdQuery} from "@/src/app/query/get-user-by-id.query";
 
 @Controller("/users")
 export class UserController {
@@ -12,8 +13,16 @@ export class UserController {
   ) {
   }
 
-  @Post()
-  public async createUser(@Body() req: CreateUserRequest): Promise<string> {
-    return await this.commandBus.execute(plainToInstance(CreateUserCommand, req));
+  @Get(':id')
+  public async getUser(@Param('id') id: string): Promise<GetUserByIdResponse> {
+    return this.queryBus.execute(new GetUserByIdQuery(id));
   }
+
+  @Post()
+  public async createUser(@Body() req: CreateUserRequest): Promise<CommandResult> {
+    const id: string = await this.commandBus.execute(plainToInstance(CreateUserCommand, req));
+
+    return CommandResult.of(id);
+  }
+
 }

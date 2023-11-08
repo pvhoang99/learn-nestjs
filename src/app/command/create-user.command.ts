@@ -1,8 +1,8 @@
 import {CommandHandler, ICommand, ICommandHandler} from "@nestjs/cqrs";
-import {User} from "../../domain/user/user";
-import {UserRepository} from "../../domain/user/user.repository";
 import {Inject} from "@nestjs/common";
-import {CreateUserRequest} from "../../api/dtos";
+import {CreateUserRequest} from "@/src/api/dtos";
+import {UserRepository} from "@/src/domain/user/user.repository";
+import {User} from "@/src/domain/user/user";
 
 export class CreateUserCommand implements ICommand, CreateUserRequest {
   name: string;
