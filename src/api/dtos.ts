@@ -8,7 +8,9 @@ export class CommandResult {
 }
 
 export type CreateUserRequest = {
-  name: string
+  name: string,
+  username: string,
+  password: string,
 }
 
 export type GetUserByIdRequest = {
@@ -17,5 +19,15 @@ export type GetUserByIdRequest = {
 
 export type GetUserByIdResponse = {
   id: string,
-  name: string
+  name: string,
+  username: string,
+}
+
+export type LoginRequest = {
+  username: string,
+  password: string
+}
+
+export type LoginResponse = {
+  access_token: string,
 }

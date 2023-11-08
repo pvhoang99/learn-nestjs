@@ -6,6 +6,8 @@ import {User} from "@/src/domain/user/user";
 
 export class CreateUserCommand implements ICommand, CreateUserRequest {
   name: string;
+  username: string;
+  password: string;
 }
 
 @CommandHandler(CreateUserCommand)

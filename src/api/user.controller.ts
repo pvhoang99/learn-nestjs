@@ -4,6 +4,7 @@ import {plainToInstance} from 'class-transformer';
 import {CreateUserCommand} from "@/src/app/command/create-user.command";
 import {CommandResult, CreateUserRequest, GetUserByIdResponse} from "@/src/api/dtos";
 import {GetUserByIdQuery} from "@/src/app/query/get-user-by-id.query";
+import {Public} from "@/src/infra/security/auth.guard";
 
 @Controller("/users")
 export class UserController {
@@ -19,6 +20,7 @@ export class UserController {
   }
 
   @Post()
+  // @Public()
   public async createUser(@Body() req: CreateUserRequest): Promise<CommandResult> {
     const id: string = await this.commandBus.execute(plainToInstance(CreateUserCommand, req));
 
