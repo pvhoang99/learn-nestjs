@@ -13,14 +13,18 @@ import {AuthGuard} from "@/src/infra/security/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import {timestampsPlugin} from "@/src/infra/mongo/plugin/timestamps.plugin";
 import {RequestContext, RequestContextModule} from "nestjs-request-context";
+import {Schema} from "mongoose";
+import {auditingPlugin} from "@/src/infra/mongo/plugin/auditing.plugin";
 
 const CommandHandlers = [CreateUserHandler, LoginHandler];
 const QueryHandlers = [GetUserByIdHandler]
 const Controllers = [UserController, AuthController]
-const MongoDBConfiguration = [
+const MongoSchemas = [{
+  name: UserCollection.name,
+  schema: UserSchema,
+}]
 
-  // MongooseModule.forFeature([{name: UserCollection.name, schema: UserSchema}])
-]
+
 const JwtConfiguration = [JwtModule.register({
   global: true,
   secret: 'test',
@@ -46,25 +50,14 @@ const Repositories = [
       'mongodb://localhost:27017', {
         connectionFactory: (connection) => {
           connection.plugin(timestampsPlugin);
+          connection.plugin(auditingPlugin);
 
           return connection;
         }
       }),
-    // MongooseModule.forFeature([{name: UserCollection.name, schema: UserSchema}]),
-    MongooseModule.forFeatureAsync(
-      [{
-        name: UserCollection.name,
-        imports: [],
-        useFactory: () => {
-          const schema = UserSchema;
-          schema.pre('save', function () {
-            const req: Request = RequestContext.currentContext.req;
-            console.log(req['currentUser'])
-          });
-          return schema;
-        },
-      }]
-    ),
+    ...MongoSchemas.map(
+      (schema) => (MongooseModule.forFeature([{...schema}]))
+    )
   ],
   controllers: [...Controllers],
   providers: [
