@@ -1,23 +1,23 @@
-import {CanActivate, ExecutionContext, Injectable, SetMetadata, UnauthorizedException} from "@nestjs/common";
+import {CanActivate, ExecutionContext, Inject, Injectable, SetMetadata, UnauthorizedException} from "@nestjs/common";
 import {JwtService} from "@nestjs/jwt";
 import {Reflector} from "@nestjs/core";
-import { Request } from 'express';
+import {Request} from 'express';
+import {RequestContext} from "@/src/infra/security/request-context";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   public constructor(
-    private jwtService: JwtService,
-    private reflector: Reflector,
+    private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
   ) {
   }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
     if (isPublic) {
-      // 💡 See this condition
       return true;
     }
 
@@ -27,9 +27,10 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      request['currentUser'] = await this.jwtService.verifyAsync(token, {
+      const currentUser = await this.jwtService.verifyAsync(token, {
         secret: 'test',
       });
+      request['currentUser'] = currentUser
     } catch {
       throw new UnauthorizedException();
     }

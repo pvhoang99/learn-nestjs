@@ -12,22 +12,14 @@ import {JwtModule} from "@nestjs/jwt";
 import {AuthGuard} from "@/src/infra/security/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import {timestampsPlugin} from "@/src/infra/mongo/plugin/timestamps.plugin";
-import {auditingPlugin} from "@/src/infra/mongo/plugin/auditing.plugin";
+import {RequestContext, RequestContextModule} from "nestjs-request-context";
 
 const CommandHandlers = [CreateUserHandler, LoginHandler];
 const QueryHandlers = [GetUserByIdHandler]
 const Controllers = [UserController, AuthController]
 const MongoDBConfiguration = [
-  MongooseModule.forRoot(
-    'mongodb://localhost:27017', {
-      connectionFactory: (connection) => {
-        connection.plugin(timestampsPlugin);
-        connection.plugin(auditingPlugin);
 
-        return connection;
-      }
-    }),
-  MongooseModule.forFeature([{name: UserCollection.name, schema: UserSchema}])
+  // MongooseModule.forFeature([{name: UserCollection.name, schema: UserSchema}])
 ]
 const JwtConfiguration = [JwtModule.register({
   global: true,
@@ -48,31 +40,43 @@ const Repositories = [
 @Module({
   imports: [
     CqrsModule,
-    ...MongoDBConfiguration,
     ...JwtConfiguration,
-    MongooseModule.forFeatureAsync([
-      {
+    RequestContextModule,
+    MongooseModule.forRoot(
+      'mongodb://localhost:27017', {
+        connectionFactory: (connection) => {
+          connection.plugin(timestampsPlugin);
+
+          return connection;
+        }
+      }),
+    // MongooseModule.forFeature([{name: UserCollection.name, schema: UserSchema}]),
+    MongooseModule.forFeatureAsync(
+      [{
         name: UserCollection.name,
+        imports: [],
         useFactory: () => {
           const schema = UserSchema;
           schema.pre('save', function () {
-            console.log('Hello from pre save');
+            const req: Request = RequestContext.currentContext.req;
+            console.log(req['currentUser'])
           });
           return schema;
         },
-      },
-    ]),
+      }]
+    ),
   ],
   controllers: [...Controllers],
   providers: [
+    AuthGuard,
+    {
+      provide: APP_GUARD,
+      useExisting: AuthGuard,
+    },
     ...CommandHandlers,
     ...QueryHandlers,
     ...Repositories,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ]
+  ],
 })
 export class AppModule {
 }

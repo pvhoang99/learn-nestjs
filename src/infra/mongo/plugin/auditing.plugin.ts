@@ -3,11 +3,12 @@ import {Schema} from 'mongoose';
 export function auditingPlugin(schema: Schema) {
   schema.add({
     createdBy: {
-      type: Schema.Types.String
-
+      type: Schema.Types.String,
+      default: 'anonymous'
     },
     updatedBy: {
-      type: Schema.Types.String
+      type: Schema.Types.String,
+      default: 'anonymous'
     },
   });
 

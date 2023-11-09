@@ -3,6 +3,7 @@ import {Inject} from "@nestjs/common";
 import {CreateUserRequest} from "@/src/api/dtos";
 import {UserRepository} from "@/src/domain/user/user.repository";
 import {User} from "@/src/domain/user/user";
+import {RequestContext} from "nestjs-request-context";
 
 export class CreateUserCommand implements ICommand, CreateUserRequest {
   name: string;
@@ -14,7 +15,7 @@ export class CreateUserCommand implements ICommand, CreateUserRequest {
 export class CreateUserHandler implements ICommandHandler<CreateUserCommand, string> {
   constructor(
     @Inject("UserRepository")
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
   ) {
   }
 

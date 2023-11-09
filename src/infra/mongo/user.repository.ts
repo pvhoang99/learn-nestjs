@@ -12,7 +12,7 @@ import {UserVm} from "@/src/domain/user/dtos";
 export class MongoUserRepository implements UserRepository, UserReadRepository {
 
   constructor(
-    @InjectModel(UserCollection.name) private readonly userModel: Model<UserDocument>
+    @InjectModel(UserCollection.name) private readonly userModel: Model<UserDocument>,
   ) {
   }
 
