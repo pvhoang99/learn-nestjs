@@ -1,6 +1,7 @@
 import {AggregateRoot} from "@nestjs/cqrs";
 import {v4 as uuid} from 'uuid';
 import {CreateUserDTO} from "@/src/domain/user/dtos";
+import {UserCreatedEvent} from "@/src/domain/user/event/user-created.event";
 
 export class User extends AggregateRoot {
   private id: string;
@@ -8,12 +9,17 @@ export class User extends AggregateRoot {
   private username: string;
   private password: string;
 
+  private constructor() {
+    super();
+  }
+
   public static createUser(data: CreateUserDTO): User {
     const user: User = new User();
     user.setId(uuid())
     user.setName(data.name)
     user.setUsername(data.username)
     user.setPassword(data.password)
+    user.apply(new UserCreatedEvent(user.getId()))
 
     return user;
   }

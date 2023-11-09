@@ -12,9 +12,9 @@ import {JwtModule} from "@nestjs/jwt";
 import {AuthGuard} from "@/src/infra/security/auth.guard";
 import {APP_GUARD} from "@nestjs/core";
 import {timestampsPlugin} from "@/src/infra/mongo/plugin/timestamps.plugin";
-import {RequestContext, RequestContextModule} from "nestjs-request-context";
-import {Schema} from "mongoose";
+import {RequestContextModule} from "nestjs-request-context";
 import {auditingPlugin} from "@/src/infra/mongo/plugin/auditing.plugin";
+import {UserCreatedHandler} from "@/src/domain/user/event/user-created.event";
 
 const CommandHandlers = [CreateUserHandler, LoginHandler];
 const QueryHandlers = [GetUserByIdHandler]
@@ -23,13 +23,14 @@ const MongoSchemas = [{
   name: UserCollection.name,
   schema: UserSchema,
 }]
-
+const EventHandlers = [UserCreatedHandler]
 
 const JwtConfiguration = [JwtModule.register({
   global: true,
   secret: 'test',
   signOptions: {expiresIn: '2 days'},
 })]
+
 const Repositories = [
   {
     provide: 'UserRepository',
@@ -68,6 +69,7 @@ const Repositories = [
     },
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
     ...Repositories,
   ],
 })

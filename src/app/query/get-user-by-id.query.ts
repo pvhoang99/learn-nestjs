@@ -2,7 +2,6 @@ import {IQuery, IQueryHandler, QueryHandler} from "@nestjs/cqrs";
 import {GetUserByIdRequest, GetUserByIdResponse} from "@/src/api/dtos";
 import {Inject} from "@nestjs/common";
 import {UserReadRepository} from "@/src/app/repo/user.read-repo";
-import {UserStorageMapper} from "@/src/infra/storage/mapper/user.storage-mapper";
 
 export class GetUserByIdQuery implements IQuery, GetUserByIdRequest {
   constructor(public readonly id: string) {

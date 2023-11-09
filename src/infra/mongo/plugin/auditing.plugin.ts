@@ -1,5 +1,5 @@
 import {Schema} from 'mongoose';
-import {RequestContext} from "nestjs-request-context";
+import {SecurityContext} from "@/src/infra/security/securityContext";
 
 export function auditingPlugin(schema: Schema) {
   schema.add({
@@ -14,8 +14,7 @@ export function auditingPlugin(schema: Schema) {
   });
 
   schema.pre('save', function (next) {
-    const req: Request = RequestContext.currentContext.req;
-    const username: string = req['currentUser']['username'];
+    const username: string = SecurityContext.getCurrentUser();
     if (username) {
       this.updatedBy = username;
       if (!this.createdBy || this.createdBy === 'anonymous') {

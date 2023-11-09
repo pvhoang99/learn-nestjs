@@ -2,6 +2,7 @@ import {CanActivate, ExecutionContext, Injectable, SetMetadata, UnauthorizedExce
 import {JwtService} from "@nestjs/jwt";
 import {Reflector} from "@nestjs/core";
 import {Request} from 'express';
+import {SecurityContext} from "@/src/infra/security/securityContext";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -29,7 +30,7 @@ export class AuthGuard implements CanActivate {
       const currentUser = await this.jwtService.verifyAsync(token, {
         secret: 'test',
       });
-      request['currentUser'] = currentUser
+      SecurityContext.setUserInfo(request, currentUser);
     } catch {
       throw new UnauthorizedException();
     }

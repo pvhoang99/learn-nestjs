@@ -7,7 +7,7 @@ import {GetUserByIdQuery} from "@/src/app/query/get-user-by-id.query";
 
 @Controller("/users")
 export class UserController {
-  constructor(
+  public constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {
@@ -19,6 +19,7 @@ export class UserController {
   }
 
   @Post()
+  // @Public()
   public async createUser(@Body() req: CreateUserRequest): Promise<CommandResult> {
     const id: string = await this.commandBus.execute(plainToInstance(CreateUserCommand, req));
 
