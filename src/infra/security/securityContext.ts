@@ -7,7 +7,7 @@ export class SecurityContext {
 
   public static getCurrentUser(): string {
     const req: Request = RequestContext.currentContext.req;
-    return req['currentUser']['username'] || 'anonymous';
+    return req['currentUser']?.username ?? 'anonymous';
   }
 
   public static setUserInfo(request: Request, currentUser: any) {
